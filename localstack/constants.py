@@ -8,9 +8,6 @@ VERSION = localstack.__version__
 # constant to represent the "local" region, i.e., local machine
 REGION_LOCAL = "local"
 
-# dev environment
-ENV_DEV = "dev"
-
 # HTTP headers used to forward proxy request URLs
 HEADER_LOCALSTACK_EDGE_URL = "x-localstack-edge"
 HEADER_LOCALSTACK_REQUEST_URL = "x-localstack-request-url"
@@ -151,14 +148,18 @@ DEFAULT_AWS_ACCOUNT_ID = "000000000000"
 # Credentials used in the test suite
 # These can be overridden if the tests are being run against AWS
 # If a structured access key ID is used, it must correspond to the account ID
-TEST_AWS_ACCOUNT_ID = os.getenv("TEST_AWS_ACCOUNT_ID") or DEFAULT_AWS_ACCOUNT_ID
-TEST_AWS_ACCESS_KEY_ID = os.getenv("TEST_AWS_ACCESS_KEY_ID") or "test"
-TEST_AWS_SECRET_ACCESS_KEY = os.getenv("TEST_AWS_SECRET_ACCESS_KEY") or "test"
-TEST_AWS_REGION_NAME = os.getenv("TEST_AWS_REGION") or "us-east-1"
+TEST_AWS_ACCOUNT_ID = os.getenv("TEST_AWS_ACCOUNT_ID") or "000000000001"
+TEST_AWS_ACCESS_KEY_ID = (
+    os.getenv("TEST_AWS_ACCESS_KEY_ID") or "LSIAQAAAAAAAQAATEST1"
+)  # translates to account ID: 000000000001
+TEST_AWS_SECRET_ACCESS_KEY = os.getenv("TEST_AWS_SECRET_ACCESS_KEY") or "test1"
+TEST_AWS_REGION_NAME = os.getenv("TEST_AWS_REGION") or "us-west-2"
 
 # Additional credentials used in the test suite (when running cross-account tests)
 SECONDARY_TEST_AWS_ACCOUNT_ID = os.getenv("SECONDARY_TEST_AWS_ACCOUNT_ID") or "000000000002"
-SECONDARY_TEST_AWS_ACCESS_KEY_ID = os.getenv("SECONDARY_TEST_AWS_ACCESS_KEY_ID") or "000000000002"
+SECONDARY_TEST_AWS_ACCESS_KEY_ID = (
+    os.getenv("SECONDARY_TEST_AWS_ACCESS_KEY_ID") or "LSIAQAAAAAABAAATEST2"
+)  # translates to account ID: 000000000002
 SECONDARY_TEST_AWS_SECRET_ACCESS_KEY = os.getenv("SECONDARY_TEST_AWS_SECRET_ACCESS_KEY") or "test2"
 SECONDARY_TEST_AWS_REGION_NAME = os.getenv("SECONDARY_TEST_AWS_REGION") or "ap-southeast-1"
 

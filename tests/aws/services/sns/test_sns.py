@@ -4703,6 +4703,8 @@ class TestSNSRetrospectionEndpoints:
             msgs_url,
             params={
                 "endpointArn": endpoint_arn,
+                "region": TEST_AWS_REGION_NAME,
+                "accountId": TEST_AWS_ACCOUNT_ID,
             },
         ).json()
         msgs_with_endpoint = api_contents_with_endpoint["platform_endpoint_messages"]
@@ -4715,6 +4717,8 @@ class TestSNSRetrospectionEndpoints:
             msgs_url,
             params={
                 "endpointArn": endpoint_arn,
+                "region": TEST_AWS_REGION_NAME,
+                "accountId": TEST_AWS_ACCOUNT_ID,
             },
         )
         assert delete_res.status_code == 204
@@ -4722,6 +4726,8 @@ class TestSNSRetrospectionEndpoints:
             msgs_url,
             params={
                 "endpointArn": endpoint_arn,
+                "region": TEST_AWS_REGION_NAME,
+                "accountId": TEST_AWS_ACCOUNT_ID,
             },
         ).json()
         msgs_with_endpoint = api_contents_with_endpoint["platform_endpoint_messages"]
