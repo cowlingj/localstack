@@ -290,7 +290,7 @@ class CloudwatchProvider(CloudwatchApi, ServiceLifecycleHook):
             )
 
         store = self.get_store(context.account_id, context.region)
-        alarm = store.Alarms.get(
+        alarm = store.alarms.get(
             arns.cloudwatch_alarm_arn(
                 alarm_name, account_id=context.account_id, region_name=context.region
             )
@@ -405,7 +405,7 @@ class CloudwatchProvider(CloudwatchApi, ServiceLifecycleHook):
         store = self.get_store(context.account_id, context.region)
         metric_alarm = LocalStackMetricAlarm(context.account_id, context.region, {**request})
         alarm_arn = metric_alarm.alarm["AlarmArn"]
-        store.Alarms[alarm_arn] = metric_alarm
+        store.alarms[alarm_arn] = metric_alarm
         self.alarm_scheduler.schedule_metric_alarm(alarm_arn)
 
     @handler("PutCompositeAlarm", expand=False)
@@ -440,7 +440,7 @@ class CloudwatchProvider(CloudwatchApi, ServiceLifecycleHook):
         next_token: NextToken = None,
     ) -> DescribeAlarmsOutput:
         store = self.get_store(context.account_id, context.region)
-        alarms = list(store.Alarms.values())
+        alarms = list(store.alarms.values())
         if action_prefix:
             alarms = [a.alarm for a in alarms if a.alarm["AlarmAction"].startswith(action_prefix)]
         elif alarm_name_prefix:
@@ -450,7 +450,7 @@ class CloudwatchProvider(CloudwatchApi, ServiceLifecycleHook):
         elif state_value:
             alarms = [a.alarm for a in alarms if a.alarm["StateValue"] == state_value]
         else:
-            alarms = [a.alarm for a in list(store.Alarms.values())]
+            alarms = [a.alarm for a in list(store.alarms.values())]
 
         # TODO: Pagination
         metric_alarms = [a for a in alarms if a.get("AlarmRule") is None]
@@ -479,7 +479,7 @@ class CloudwatchProvider(CloudwatchApi, ServiceLifecycleHook):
         self, context: RequestContext, dashboard_name: DashboardName, dashboard_body: DashboardBody
     ) -> PutDashboardOutput:
         store = self.get_store(context.account_id, context.region)
-        store.Dashboards[dashboard_name] = LocalStackDashboard(
+        store.dashboards[dashboard_name] = LocalStackDashboard(
             context.account_id, context.region, dashboard_name, dashboard_body
         )
         return PutDashboardOutput()
@@ -488,7 +488,7 @@ class CloudwatchProvider(CloudwatchApi, ServiceLifecycleHook):
         self, context: RequestContext, dashboard_name: DashboardName
     ) -> GetDashboardOutput:
         store = self.get_store(context.account_id, context.region)
-        dashboard = store.Dashboards.get(dashboard_name)
+        dashboard = store.dashboards.get(dashboard_name)
         if not dashboard:
             raise InvalidParameterValueException(f"Dashboard {dashboard_name} does not exist.")
 
@@ -503,7 +503,7 @@ class CloudwatchProvider(CloudwatchApi, ServiceLifecycleHook):
     ) -> DeleteDashboardsOutput:
         store = self.get_store(context.account_id, context.region)
         for dashboard_name in dashboard_names:
-            store.Dashboards.pop(dashboard_name, None)
+            store.dashboards.pop(dashboard_name, None)
         return DeleteDashboardsOutput()
 
     def list_dashboards(
@@ -513,7 +513,7 @@ class CloudwatchProvider(CloudwatchApi, ServiceLifecycleHook):
         next_token: NextToken = None,
     ) -> ListDashboardsOutput:
         store = self.get_store(context.account_id, context.region)
-        dashboard_names = list(store.Dashboards.keys())
+        dashboard_names = list(store.dashboards.keys())
         dashboard_names = [
             name for name in dashboard_names if name.startswith(dashboard_name_prefix or "")
         ]
@@ -521,9 +521,9 @@ class CloudwatchProvider(CloudwatchApi, ServiceLifecycleHook):
         entries = [
             {
                 "DashboardName": name,
-                "DashboardArn": store.Dashboards[name].dashboard_arn,
-                "LastModified": store.Dashboards[name].last_modified,
-                "Size": store.Dashboards[name].size,
+                "DashboardArn": store.dashboards[name].dashboard_arn,
+                "LastModified": store.dashboards[name].last_modified,
+                "Size": store.dashboards[name].size,
             }
             for name in dashboard_names
         ]
@@ -653,7 +653,7 @@ class CloudwatchProvider(CloudwatchApi, ServiceLifecycleHook):
         old_state = alarm.alarm["StateValue"]
         store = self.get_store(context.account_id, context.region)
         current_time = datetime.datetime.now()
-        store.Histories.append(
+        store.histories.append(
             {
                 "Timestamp": timestamp_millis(alarm.alarm["StateUpdatedTimestamp"]),
                 "HistoryItemType": HistoryItemType.StateUpdate,
@@ -681,7 +681,7 @@ class CloudwatchProvider(CloudwatchApi, ServiceLifecycleHook):
             alarm_arn = arns.cloudwatch_alarm_arn(
                 name, account_id=context.account_id, region_name=context.region
             )
-            alarm = store.Alarms.get(alarm_arn)
+            alarm = store.alarms.get(alarm_arn)
             if alarm:
                 alarm.alarm["ActionsEnabled"] = enabled
 
